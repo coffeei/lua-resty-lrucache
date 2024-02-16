@@ -286,7 +286,7 @@ stop_update_when_err_occur: true/false/nil
 
 get_new_value_func: call back function like below:
 
-`local new_val, err = get_new_value_func(key, val, ...)`
+`local new_val, err = get_new_value_func(key, old_val, ...)`
 
 [Back to TOC](#table-of-contents)
 
