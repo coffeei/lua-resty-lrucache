@@ -19,6 +19,7 @@ Table of Contents
     * [capacity](#capacity)
     * [get_keys](#get_keys)
     * [flush_all](#flush_all)
+    * [batch_update](#batch_update)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Community](#community)
@@ -270,6 +271,22 @@ instance.
 
 Note however that the `flush_all()` method of `resty.lrucache.pureffi` is an
 `O(n)` operation.
+
+[Back to TOC](#table-of-contents)
+
+batch_update
+---------
+`syntax: cache:batch_update(max_update_count, stop_update_when_err_occur, get_new_value_func, ...)`
+
+Batch update the values in the lrucache,it will no effect to lru computation ,just update value
+
+Parameters:
+
+stop_update_when_err_occur: true/false/nil
+
+get_new_value_func: call back function like below:
+
+`local new_val, err = get_new_value_func(key, val, ...)`
 
 [Back to TOC](#table-of-contents)
 
