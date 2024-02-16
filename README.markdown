@@ -276,7 +276,7 @@ Note however that the `flush_all()` method of `resty.lrucache.pureffi` is an
 
 batch_update
 ---------
-`syntax: success_count, failure_count, not_update_count, last_update_err_msg = cache:batch_update(max_update_count, stop_update_when_err_occur, get_new_value_func, ...)`
+`syntax: total_count, success_count, failure_count, not_update_count, last_update_err_msg = cache:batch_update(max_update_count, stop_update_when_err_occur, get_new_value_func, ...)`
 
 Batch update the values in the lrucache,it will no effect to lru computation ,just update value
 
