@@ -337,6 +337,57 @@ function _M.flush_all(self)
         cache_head.prev = cache_queue
     end
 end
-
+---batch update the values in the lrucache,it will no effect to lru computation ,just update value
+function _M.batch_update(self, max_update_count, stop_update_when_err_occur, get_new_value_func, ...)
+    local keys = _M.get_keys(self, max_update_count)
+    if keys and #keys > 0 then
+        local success_count, failure_count, not_update_count, last_update_err_msg = 0, 0, 0, ""
+        for _, key in ipairs(keys) do
+            local hasht = self.hasht
+            local val = hasht[key]
+            if val ~= nil then
+                local node = self.key2node[key]
+                if node ~= nil then
+                    --ngx.log(ngx.NOTICE,"lrucache update key:",key,",node.expire:",node.expire)
+                    if not node.expire or node.expire <= 0 or node.expire >= ngx_now() then
+                        local ok, new_val, err = pcall(get_new_value_func, key, val, ...)
+                        if ok then
+                            if new_val then
+                                if hasht[key] ~= new_val then
+                                    hasht[key] = new_val
+                                    success_count = success_count + 1
+                                    --ngx.log(ngx.NOTICE,"update success,",key)
+                                else
+                                    not_update_count = not_update_count + 1
+                                    --ngx.log(ngx.NOTICE,"not update from func",key)
+                                end
+                            elseif err then
+                                failure_count = failure_count + 1
+                                last_update_err_msg = key .. ":err:" .. err
+                                --ngx.log(ngx.ERR,"update ",key,",err:",err)
+                                if stop_update_when_err_occur then
+                                    break
+                                end
+                            end
+                        else
+                            failure_count = failure_count + 1
+                            last_update_err_msg = key .. ":err:" .. err
+                            --ngx.log(ngx.ERR,"call get_value_func err , ",key,",err:",new_val)
+                            if stop_update_when_err_occur then
+                                break
+                            end
+                        end
+                    else
+                        not_update_count = not_update_count + 1
+                        --ngx.log(ngx.NOTICE,"not update,",key)
+                    end
+                end
+            end
+        end
+        return #keys, success_count, failure_count, not_update_count, last_update_err_msg
+    else
+        return 0
+    end
+end
 
 return _M
